@@ -1,4 +1,9 @@
 node_modules/
 .next/
 .git/
+.github/
 .env*
+generated/
+*.md
+app-demo.png
+docker-compose.yml

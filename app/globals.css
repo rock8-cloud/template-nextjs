@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/schibsted-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+@theme {
+  --font-sans: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --color-ink: #0c0e12;
+  --color-panel: #13161c;
+  --color-raised: #1a1e26;
+  --color-line: #262b35;
+  --color-text: #e7e9ee;
+  --color-muted: #8d95a5;
+  --color-faint: #5d6473;
+  --color-accent: #f0b866;
+  --color-accent-strong: #f7cb8b;
+  --color-danger: #f0857a;
+  --color-ok: #7fd1a6;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex h-9 items-center justify-center gap-2 rounded-md border border-line bg-raised px-3.5 text-sm font-medium text-text transition-colors hover:border-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply border-accent bg-accent text-ink hover:border-accent-strong hover:bg-accent-strong;
+  }
+  .btn-quiet {
+    @apply h-8 border-transparent bg-transparent px-2.5 text-muted hover:border-line hover:text-text;
+  }
+  .btn-danger {
+    @apply hover:border-danger/40 hover:text-danger;
+  }
+  .field {
+    @apply block w-full rounded-md border border-line bg-ink px-3 py-2 text-sm text-text placeholder:text-faint focus:border-accent focus:outline-none aria-invalid:border-danger;
+  }
+}
