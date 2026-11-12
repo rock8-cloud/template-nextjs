@@ -2,26 +2,29 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/spacedb
+      DEMO_READ_ONLY: ${DEMO_READ_ONLY:-false}
     depends_on:
       db:
         condition: service_healthy
 
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: spacedb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d spacedb"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
 volumes:
   postgres_data:

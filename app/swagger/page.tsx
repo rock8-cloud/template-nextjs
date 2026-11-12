@@ -1,10 +1,13 @@
-'use client'
+import { PageHeading } from '@/components/page-heading'
+import { SwaggerUi } from '@/components/swagger-ui'
 
-import dynamic from 'next/dynamic'
-import 'swagger-ui-react/swagger-ui.css'
-
-const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false })
+export const metadata = { title: 'API docs - Space Targets' }
 
 export default function SwaggerPage() {
-  return <SwaggerUI url="/api/openapi.json" />
+  return (
+    <>
+      <PageHeading title="API docs" lead="Every endpoint of the REST API. The spec is at /api/openapi.json." />
+      <SwaggerUi url="/api/openapi.json" />
+    </>
+  )
 }
