@@ -1,6 +1,33 @@
 // Runs before the server starts: waits for the database, applies pending
 // Prisma migrations and seeds the table when it is empty. Safe on every start.
 import { spawnSync } from 'node:child_process'
+import http from 'node:http'
+
+const port = parseInt(process.env.PORT, 10) || 3000
+const hostname = '0.0.0.0'
+
+// Respond 200 OK to container healthchecks / probes while prestart runs
+const tempServer = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify({ status: 'starting' }))
+})
+
+await new Promise((resolve) => {
+  tempServer.listen(port, hostname, () => resolve())
+  tempServer.on('error', (err) => {
+    console.warn(`Healthcheck listener error: ${err.message}`)
+    resolve()
+  })
+})
+
+function closeTempServer() {
+  return new Promise((resolve) => {
+    if (typeof tempServer.closeAllConnections === 'function') {
+      tempServer.closeAllConnections()
+    }
+    tempServer.close(() => resolve())
+  })
+}
 
 const PRISMA_CLI = 'node_modules/prisma/build/index.js'
 const WAIT_LIMIT_MS = 60_000
@@ -20,6 +47,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not set.')
+  await closeTempServer()
   process.exit(1)
 }
 
@@ -34,6 +62,7 @@ for (;;) {
   if (!CONNECTION_ERROR.test(migrate.output) || waited + RETRY_DELAY_MS > WAIT_LIMIT_MS) {
     console.error(migrate.output.trim())
     console.error('Migrations failed, the server will not start.')
+    await closeTempServer()
     process.exit(1)
   }
   console.log(`Database is not ready yet, retrying (${Math.round(waited / 1000)}s)...`)
@@ -44,5 +73,8 @@ const seed = prisma('db', 'seed')
 console.log(seed.output.trim())
 if (!seed.ok) {
   console.error('Seeding failed, the server will not start.')
+  await closeTempServer()
   process.exit(1)
 }
+
+await closeTempServer()
