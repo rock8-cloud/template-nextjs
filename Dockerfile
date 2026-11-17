@@ -52,4 +52,4 @@ USER nextjs
 EXPOSE 3000
 
 # Apply migrations and seed, then start the server
-CMD ["sh", "-c", "node scripts/prestart.mjs && exec node server.js"]
+CMD ["sh", "-c", "export HOSTNAME=0.0.0.0; node scripts/prestart.mjs && exec node server.js"]
