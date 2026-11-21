@@ -11,7 +11,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:18-alpine
+    image: postgres:19-alpine
     ports:
       - "${DB_PORT:-5432}:5432"
     environment:
